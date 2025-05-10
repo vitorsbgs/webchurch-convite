@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WEBCHURCH - Convite</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100svh;
+    }
+
+    .message {
+      text-align: center;
+      font-size: 1.5rem;
+      padding: 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      padding: 1rem;
+      position: relative;
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      max-height: 100vh;
+      background: black;
+    }
+
+    .overlay, .start-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 999;
+    }
+
+    .overlay button, .start-overlay button {
+      margin: 1rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #ffffff;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="content"></div>
+
+  <script>
+    const FLAG_KEY = "video_reproduzido";
+    let video;
+
+    function criarVideo() {
+      video = document.createElement("video");
+      video.src = "video.mp4"; // Substitua pelo caminho do seu vídeo
+      video.controls = false;
+      video.playsInline = true;
+
+      video.addEventListener("ended", () => {
+        perguntarConfirmacao();
+      });
+
+      return video;
+    }
+
+    function mostrarMensagem() {
+      const container = document.getElementById("content");
+      container.innerHTML = `<div class="message">O vídeo já foi reproduzido 👀</div>`;
+    }
+
+    function perguntarConfirmacao() {
+      const overlay = document.createElement("div");
+      overlay.className = "overlay";
+      overlay.innerHTML = `
+        <p>Você assistiu ao vídeo por completo?</p>
+        <button id="btn-sim">Sim</button>
+        <button id="btn-nao">Não</button>
+      `;
+      document.body.appendChild(overlay);
+
+      document.getElementById("btn-sim").onclick = () => {
+        localStorage.setItem(FLAG_KEY, "true");
+        overlay.remove();
+        mostrarMensagem();
+      };
+
+      document.getElementById("btn-nao").onclick = () => {
+        overlay.remove();
+        inicializar(); // Recarrega o vídeo
+      };
+    }
+
+    function mostrarBotaoInicio(video) {
+      const startOverlay = document.createElement("div");
+      startOverlay.className = "start-overlay";
+      startOverlay.innerHTML = `
+        <div class="message">Temos uma mensagem especial pra você 😍</div>
+        <button id="btn-iniciar">Assistir</button>
+      `;
+      document.body.appendChild(startOverlay);
+
+      document.getElementById("btn-iniciar").onclick = () => {
+        video.play();
+        startOverlay.remove();
+      };
+    }
+
+    function inicializar() {
+      const container = document.getElementById("content");
+      container.innerHTML = "";
+      const jaVisto = localStorage.getItem(FLAG_KEY);
+
+      if (jaVisto === "true") {
+        mostrarMensagem();
+      } else {
+        const novoVideo = criarVideo();
+        container.appendChild(novoVideo);
+        mostrarBotaoInicio(novoVideo);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", inicializar);
+  </script>
+</body>
+</html>
